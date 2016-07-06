@@ -46,7 +46,6 @@ import static org.apache.commons.lang.StringUtils.removeStart;
 // This class is a replacement for GoArtifactsManipulator, so bear with the duplication for now
 public class UrlBasedArtifactsRepository implements ArtifactsRepository {
     private static final Logger LOGGER = Logger.getLogger(UrlBasedArtifactsRepository.class);
-
     private final HttpService httpService;
     private final String artifactsBaseUrl;
     private String propertyBaseUrl;
@@ -154,15 +153,9 @@ public class UrlBasedArtifactsRepository implements ArtifactsRepository {
             return computeChecksumForContentsOfDirectory(source, destPath);
         }
 
-        FileInputStream inputStream = null;
-        Properties properties = null;
-        try {
-            inputStream = new FileInputStream(source);
+        Properties properties;
+        try (FileInputStream inputStream = new FileInputStream(source)) {
             properties = computeChecksumForFile(source.getName(), md5Hex(inputStream), destPath);
-        } finally {
-            if (inputStream != null) {
-                inputStream.close();
-            }
         }
         return properties;
     }
@@ -172,14 +165,8 @@ public class UrlBasedArtifactsRepository implements ArtifactsRepository {
         Properties checksumProperties = new Properties();
         for (File file : fileStructure) {
             String filePath = removeStart(file.getAbsolutePath(), directory.getParentFile().getAbsolutePath());
-            FileInputStream inputStream = null;
-            try {
-                inputStream = new FileInputStream(file);
+            try (FileInputStream inputStream = new FileInputStream(file)) {
                 checksumProperties.setProperty(getEffectiveFileName(destPath, normalizePath(filePath)), md5Hex(inputStream));
-            } finally {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
             }
         }
         return checksumProperties;

@@ -70,6 +70,7 @@ public class AgentWebsocketService {
             this.runner = runner;
             this.service = service;
         }
+
         @Override
         public AgentInstruction ping(AgentRuntimeInfo info) {
             throw new UnsupportedOperationException();

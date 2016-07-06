@@ -58,9 +58,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -82,11 +84,13 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-
+@RunWith(MockitoJUnitRunner.class)
 public class AgentControllerTest {
-    public static final int MAX_WAIT_IN_TEST = 10000;
+    private static final int MAX_WAIT_IN_TEST = 10000;
+
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
     @Mock
     private BuildRepositoryRemote loopServer;
     @Mock
@@ -117,16 +121,12 @@ public class AgentControllerTest {
     private HttpService httpService;
     @Mock
     private HttpClient httpClient;
-
     private String agentUuid = "uuid";
     private AgentIdentifier agentIdentifier;
     private AgentController agentController;
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
 
     @Before
     public void setUp() throws Exception {
-        initMocks(this);
         agentIdentifier = new AgentIdentifier(getLocalhostName(), getFirstLocalNonLoopbackIpAddress(), agentUuid);
     }
 
@@ -135,11 +135,10 @@ public class AgentControllerTest {
         GuidService.deleteGuid();
     }
 
-
     @Test
     public void shouldSetPluginManagerReference() throws Exception {
         agentController = createAgentController();
-        assertThat(PluginManagerReference.reference().getPluginManager(),is(pluginManager));
+        assertThat(PluginManagerReference.reference().getPluginManager(), is(pluginManager));
     }
 
     @Test
@@ -155,7 +154,7 @@ public class AgentControllerTest {
     }
 
     @Test
-    public void shouldRetriveCookieIfNotPresent() throws Exception {
+    public void shouldRetrieveCookieIfNotPresent() throws Exception {
         agentController = createAgentController();
         agentController.init();
 
@@ -205,7 +204,7 @@ public class AgentControllerTest {
     public void shouldRegisterSubprocessLoggerAtExit() throws Exception {
         SslInfrastructureService sslInfrastructureService = mock(SslInfrastructureService.class);
         AgentRegistry agentRegistry = mock(AgentRegistry.class);
-        agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension, agentWebsocketService, mock(HttpService.class));
+        agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment, pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension, agentWebsocketService, mock(HttpService.class));
         agentController.init();
         verify(subprocessLogger).registerAsExitHook("Following processes were alive at shutdown: ");
     }
@@ -317,7 +316,7 @@ public class AgentControllerTest {
         agentController.process(new Message(Action.build, MessageEncoding.encodeData(build)));
         assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
 
-        AgentRuntimeInfo agentRuntimeInfo  = cloneAgentRuntimeInfo(agentController.getAgentRuntimeInfo());
+        AgentRuntimeInfo agentRuntimeInfo = cloneAgentRuntimeInfo(agentController.getAgentRuntimeInfo());
         agentRuntimeInfo.busy(new AgentBuildingInfo("build1ForDisplay", "build1"));
         verify(agentWebsocketService).sendAndWaitForAck(new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", JobState.Building, null))));
         verify(agentWebsocketService).sendAndWaitForAck(new Message(Action.reportCompleted, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Passed))));
@@ -326,7 +325,7 @@ public class AgentControllerTest {
         ArgumentCaptor<PutMethod> putMethodArg = ArgumentCaptor.forClass(PutMethod.class);
         verify(httpClient).executeMethod(putMethodArg.capture());
         assertThat(putMethodArg.getValue().getURI(), is(new URI("http://foo.bar/console", false)));
-        assertThat(((StringRequestEntity)putMethodArg.getValue().getRequestEntity()).getContent(), containsString("building"));
+        assertThat(((StringRequestEntity) putMethodArg.getValue().getRequestEntity()).getContent(), containsString("building"));
     }
 
     private AgentRuntimeInfo cloneAgentRuntimeInfo(AgentRuntimeInfo agentRuntimeInfo) {
@@ -370,7 +369,7 @@ public class AgentControllerTest {
         agentController.process(new Message(Action.cancelBuild));
         buildingThread.join(MAX_WAIT_IN_TEST);
 
-        AgentRuntimeInfo agentRuntimeInfo  = cloneAgentRuntimeInfo(agentController.getAgentRuntimeInfo());
+        AgentRuntimeInfo agentRuntimeInfo = cloneAgentRuntimeInfo(agentController.getAgentRuntimeInfo());
         agentRuntimeInfo.busy(new AgentBuildingInfo("build1ForDisplay", "build1"));
         agentRuntimeInfo.cancel();
 
@@ -410,14 +409,14 @@ public class AgentControllerTest {
     private void waitForAgentRuntimeState(AgentRuntimeInfo runtimeInfo, AgentRuntimeStatus status) throws InterruptedException {
         int elapsed = 0;
         int waitStep = 100;
-        while(elapsed <= MAX_WAIT_IN_TEST) {
-            if(runtimeInfo.getRuntimeStatus() == status) {
+        while (elapsed <= MAX_WAIT_IN_TEST) {
+            if (runtimeInfo.getRuntimeStatus() == status) {
                 return;
             }
             Thread.sleep(waitStep);
             elapsed += waitStep;
         }
-        throw new RuntimeException("wait for agent status '" + status.name() + "' timeout, current status is '" + runtimeInfo.getRuntimeStatus().name() + "'" );
+        throw new RuntimeException("wait for agent status '" + status.name() + "' timeout, current status is '" + runtimeInfo.getRuntimeStatus().name() + "'");
     }
 
     @Test
@@ -475,6 +474,6 @@ public class AgentControllerTest {
     }
 
     private AgentController createAgentController() {
-        return new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension, agentWebsocketService, httpService);
+        return new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment, pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension, agentWebsocketService, httpService);
     }
 }

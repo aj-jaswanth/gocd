@@ -120,7 +120,6 @@ public class AgentController {
         this.agentAutoRegistrationProperties = new AgentAutoRegistrationPropertiesImpl(new File("config", "autoregister.properties"));
     }
 
-
     void init() throws IOException {
         websocketService.setController(this);
         createPipelinesFolderIfNotExist();
@@ -249,15 +248,11 @@ public class AgentController {
         if (e == null) {
             return false;
         }
-        if (e instanceof GeneralSecurityException) {
-            return true;
-        } else {
-            return isCausedBySecurity(e.getCause());
-        }
+        return (e instanceof GeneralSecurityException) || isCausedBySecurity(e.getCause());
     }
 
 
-    public void websocketPing() {
+    private void websocketPing() {
         try {
             agentUpgradeService.checkForUpgrade();
             sslInfrastructureService.registerIfNecessary(agentAutoRegistrationProperties);
@@ -397,11 +392,11 @@ public class AgentController {
         LOG.trace("{} pinged server [{}]", agent, server);
     }
 
-    protected AgentAutoRegistrationProperties getAgentAutoRegistrationProperties() {
+    AgentAutoRegistrationProperties getAgentAutoRegistrationProperties() {
         return agentAutoRegistrationProperties;
     }
 
-    protected AgentRuntimeInfo getAgentRuntimeInfo() {
+    AgentRuntimeInfo getAgentRuntimeInfo() {
         return agentRuntimeInfo;
     }
 

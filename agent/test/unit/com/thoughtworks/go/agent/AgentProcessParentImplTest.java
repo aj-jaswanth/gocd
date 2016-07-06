@@ -58,6 +58,7 @@ import static org.mockito.Mockito.when;
 @RunWith(FakeBootstrapperServer.class)
 public class AgentProcessParentImplTest {
 
+    private static final OSChecker OS_CHECKER = new OSChecker(OSChecker.WINDOWS);
     private final File stderrLog = new File(AgentProcessParentImpl.GO_AGENT_STDERR_LOG);
     private final File stdoutLog = new File(AgentProcessParentImpl.GO_AGENT_STDOUT_LOG);
 
@@ -141,7 +142,7 @@ public class AgentProcessParentImplTest {
     }
 
     @Test
-    public void shouldLogIntrruptOnAgentProcess() throws InterruptedException {
+    public void shouldLogInterruptOnAgentProcess() throws InterruptedException {
         final List<String> cmd = new ArrayList<>();
         LogFixture logFixture = LogFixture.startListening();
         try {
@@ -218,13 +219,10 @@ public class AgentProcessParentImplTest {
         }
     }
 
-    public static final OSChecker OS_CHECKER = new OSChecker(OSChecker.WINDOWS);
-
     @Test
     public void shouldNotDownloadPluginsZipIfPresent() throws Exception {
         if (!OS_CHECKER.satisfy()) {
             File pluginZip = null;
-            File agentLauncher = null;
             try {
                 FileUtils.copyFile(new File("testdata/agent-plugins.zip"), pluginZip = new File(Downloader.AGENT_PLUGINS));
                 pluginZip.setLastModified(System.currentTimeMillis() - 10 * 1000);
@@ -233,7 +231,7 @@ public class AgentProcessParentImplTest {
                 bootstrapper.run("launcher_version", "bar", getURLGenerator(), m(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"));
                 assertThat(new File(Downloader.AGENT_PLUGINS).lastModified(), is(expectedModifiedDate));
             } finally {
-                delete(pluginZip, agentLauncher);
+                delete(pluginZip, null);
             }
         }
     }
@@ -242,7 +240,6 @@ public class AgentProcessParentImplTest {
     public void shouldDownloadPluginsZipIfMissing() throws Exception {
         if (!OS_CHECKER.satisfy()) {
             File stalePluginZip = null;
-            File agentLauncher = null;
             try {
                 stalePluginZip = randomFile("agent-plugins.zip");
                 long original = stalePluginZip.length();
@@ -252,7 +249,7 @@ public class AgentProcessParentImplTest {
 
                 assertThat(stalePluginZip.length(), not(original));
             } finally {
-                delete(stalePluginZip, agentLauncher);
+                delete(stalePluginZip, null);
             }
         }
     }
@@ -265,14 +262,10 @@ public class AgentProcessParentImplTest {
     }
 
     private void createRandomFile(File agentJar, final String data) {
-        FileOutputStream output = null;
-        try {
-            output = new FileOutputStream(agentJar);
+        try (FileOutputStream output = new FileOutputStream(agentJar)) {
             IOUtils.write(data, output);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(output);
+            e.printStackTrace();
         }
     }
 

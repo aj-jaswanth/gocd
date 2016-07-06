@@ -27,7 +27,10 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -41,12 +44,13 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class UrlBasedArtifactsRepositoryTest {
 
+    @Mock
     private HttpService httpService;
     private File tempFile;
     private File artifactFolder;
@@ -55,7 +59,6 @@ public class UrlBasedArtifactsRepositoryTest {
 
     @Before
     public void setUp() throws Exception {
-        httpService = mock(HttpService.class);
         artifactFolder = TestFileUtil.createTempFolder("artifact_folder");
         tempFile = TestFileUtil.createTestFile(artifactFolder, "file.txt");
         console = new TestStreamConsumer();
@@ -93,7 +96,6 @@ public class UrlBasedArtifactsRepositoryTest {
         }
     }
 
-
     @Test
     public void shouldRetryUponUploadFailure() throws IOException {
         String data = "Some text whose checksum can be asserted";
@@ -109,7 +111,7 @@ public class UrlBasedArtifactsRepositoryTest {
     }
 
     @Test
-    public void shouldPrintFailureMessageToConosoleWhenUploadFailed() throws IOException {
+    public void shouldPrintFailureMessageToConsoleWhenUploadFailed() throws IOException {
         String data = "Some text whose checksum can be asserted";
         final String md5 = CachedDigestUtils.md5Hex(data);
         FileUtils.writeStringToFile(tempFile, data);

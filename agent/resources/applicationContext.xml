@@ -18,9 +18,9 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:p="http://www.springframework.org/schema/p" xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd"
+            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd"
        default-init-method="init">
 
     <import resource="classpath:applicationContext-plugin-infra.xml"/>
@@ -28,18 +28,18 @@
 
     <!-- Loads the System Properties -->
     <bean id="propertyConfigurer"
-		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="locations">
-			<list>
-				<value>classpath*:agent.properties</value>
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath*:agent.properties</value>
             </list>
-		</property>
+        </property>
         <!--SYSTEM_PROPERTIES_MODE_OVERRIDE : Check system properties first, before trying the specified properties.
             This allows system properties to override any other property source.-->
         <property name="systemPropertiesMode" value="2"/>
     </bean>
 
-    <bean id="log4jDirectConfigurer" class="com.thoughtworks.go.util.Log4jDirectConfigurer" />
+    <bean id="log4jDirectConfigurer" class="com.thoughtworks.go.util.Log4jDirectConfigurer"/>
 
     <bean id="buildLoopServer" class="com.thoughtworks.go.agent.service.HttpInvokerProxyFactoryWrapper"
           p:serviceInterface="com.thoughtworks.go.remote.BuildRepositoryRemote">
@@ -55,9 +55,9 @@
     <bean class="com.thoughtworks.go.publishers.GoArtifactsManipulator"/>
     <bean class="com.thoughtworks.go.agent.service.SslInfrastructureService"/>
     <bean class="com.thoughtworks.go.agent.service.AgentUpgradeService"/>
-    <bean class="com.thoughtworks.go.config.DefaultAgentRegistry" />
+    <bean class="com.thoughtworks.go.config.DefaultAgentRegistry"/>
 
-    <bean class="com.thoughtworks.go.agent.service.AgentWebsocketService" />
+    <bean class="com.thoughtworks.go.agent.service.AgentWebsocketService"/>
     <bean id="subprocessLogger" class="com.thoughtworks.go.util.SubprocessLogger"/>
     <bean id="agentController" class="com.thoughtworks.go.agent.AgentController"/>
     <bean id="agentPluginsInitializer" class="com.thoughtworks.go.agent.AgentPluginsInitializer"/>
@@ -66,67 +66,26 @@
     <bean class="com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension"/>
 
     <bean id="httpClient" class="org.apache.commons.httpclient.HttpClient">
-        <constructor-arg>
-            <ref bean="httpConnectionManager"/>
-        </constructor-arg>
+        <constructor-arg ref="httpConnectionManager"/>
     </bean>
 
     <bean id="httpConnectionManager" class="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager"
-            p:params-ref="httpConnectionParams">
+          p:params-ref="httpConnectionParams">
     </bean>
 
     <bean id="httpConnectionParams" class="org.apache.commons.httpclient.params.HttpConnectionManagerParams"
-            p:soTimeout="300000"
-            p:connectionTimeout="300000">
+          p:soTimeout="300000"
+          p:connectionTimeout="300000">
     </bean>
 
-    <bean id="agentControllerLooper" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
-          p:targetObject-ref="agentController"
-          p:targetMethod="loop"/>
+    <task:scheduled-tasks scheduler="scheduler">
+        <task:scheduled ref="agentController" method="loop" fixed-delay="${agent.get.work.delay}"
+                        fixed-rate="${agent.get.work.interval}"/>
+        <task:scheduled ref="agentController" method="ping" fixed-delay="${agent.ping.delay}"
+                        fixed-rate="${agent.ping.interval}"/>
+        <task:scheduled ref="agentController" method="executeAgentInstruction" fixed-delay="${agent.instruction.delay}"
+                        fixed-rate="${agent.instruction.interval}"/>
+    </task:scheduled-tasks>
 
-    <bean id="agentControllerPinger" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
-          p:targetObject-ref="agentController"
-          p:targetMethod="ping"/>
-
-    <bean id="agentControllerInstructionExecutor" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
-          p:targetObject-ref="agentController"
-          p:targetMethod="executeAgentInstruction"/>
-
-
-    <!-- worker thread -->
-    <bean name="loopThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
-            <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-                      p:delay="${agent.get.work.delay}"
-                      p:period="${agent.get.work.interval}"
-                      p:timerTask-ref="agentControllerLooper"/>
-            </list>
-        </property>
-    </bean>
-
-    <!-- ping thread -->
-    <bean name="pingThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
-            <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-                      p:delay="${agent.ping.delay}"
-                      p:period="${agent.ping.interval}"
-                      p:fixedRate="true"
-                      p:timerTask-ref="agentControllerPinger"/>
-            </list>
-        </property>
-    </bean>
-
-    <!-- instruction checker -->
-    <bean name="instructionExecuteThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
-            <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-                      p:delay="${agent.instruction.delay}"
-                      p:period="${agent.instruction.interval}"
-                      p:timerTask-ref="agentControllerInstructionExecutor"/>
-            </list>
-        </property>
-    </bean>
+    <task:scheduler id="scheduler" pool-size="3"/>
 </beans>

@@ -49,14 +49,13 @@ public class SslInfrastructureService {
 
     public static final File AGENT_CERTIFICATE_FILE = new File("config", "agent.jks");
     public static final File AGENT_TRUST_FILE = new File("config", "trust.jks");
-    public static final String CHAIN_ALIAS = "agent";
     public static final String AGENT_STORE_PASSWORD = "agent5s0repa55w0rd";
+    private static final String CHAIN_ALIAS = "agent";
     private static final Logger LOGGER = Logger.getLogger(SslInfrastructureService.class);
     private static final int REGISTER_RETRY_INTERVAL = 5000;
     private final RemoteRegistrationRequester remoteRegistrationRequester;
     private final KeyStoreManager keyStoreManager;
     private final HttpClient httpClient;
-    private AuthSSLProtocolSocketFactory protocolSocketFactory;
     private transient boolean registered = false;
     private HttpConnectionManagerParams httpConnectionManagerParams;
 
@@ -78,7 +77,7 @@ public class SslInfrastructureService {
     public void createSslInfrastructure() throws IOException {
         File parentFile = AGENT_TRUST_FILE.getParentFile();
         if (parentFile.exists() || parentFile.mkdirs()) {
-            protocolSocketFactory = new AuthSSLProtocolSocketFactory(
+            AuthSSLProtocolSocketFactory protocolSocketFactory = new AuthSSLProtocolSocketFactory(
                     AGENT_TRUST_FILE, AGENT_CERTIFICATE_FILE, AGENT_STORE_PASSWORD);
             protocolSocketFactory.registerAsHttpsProtocol();
         } else {
@@ -125,7 +124,7 @@ public class SslInfrastructureService {
         storeChainIntoAgentStore(keyEntry);
     }
 
-    void storeChainIntoAgentStore(Registration keyEntry) {
+    private void storeChainIntoAgentStore(Registration keyEntry) {
         try {
             keyStoreManager.storeCertificate(CHAIN_ALIAS, AGENT_CERTIFICATE_FILE, AGENT_STORE_PASSWORD, keyEntry);
             LOGGER.info(String.format("[Agent Registration] Stored registration for cert with hash code: %s not valid before: %s", md5Fingerprint(keyEntry.getFirstCertificate()),
@@ -155,7 +154,7 @@ public class SslInfrastructureService {
         httpClient.setHttpConnectionManager(httpConnectionManager);
     }
 
-    public void deleteKeyStores() {
+    private void deleteKeyStores() {
         FileUtils.deleteQuietly(AGENT_CERTIFICATE_FILE);
         FileUtils.deleteQuietly(AGENT_TRUST_FILE);
     }

@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Service
@@ -48,22 +49,22 @@ public class AgentUpgradeService {
         }
     }
 
-    void checkForUpgrade(String md5, String launcherMd5, String agentPluginsMd5) throws Exception {
+    private void checkForUpgrade(String md5, String launcherMd5, String agentPluginsMd5) throws Exception {
         HttpMethod method = getAgentLatestStatusGetMethod();
         try {
             final int status = httpClient.executeMethod(method);
-            if (status != 200) {
+            if (status != HttpServletResponse.SC_OK) {
                 LOGGER.error(String.format("[Agent Upgrade] Got status %d %s from Go", status, method.getStatusText()));
                 return;
             }
             validateIfLatestAgent(md5, method);
             validateIfLatestLauncher(launcherMd5, method);
             validateIfLatestPluginZipAvailable(agentPluginsMd5, method);
-        } catch (IOException ioe) {
-            String message = String.format("[Agent Upgrade] Couldn't connect to: %s: %s", urlService.getAgentLatestStatusUrl(), ioe.toString());
+        } catch (IOException exception) {
+            String message = String.format("[Agent Upgrade] Couldn't connect to: %s: %s", urlService.getAgentLatestStatusUrl(), exception.toString());
             LOGGER.error(message);
-            LOGGER.debug(message, ioe);
-            throw ioe;
+            LOGGER.debug(message, exception);
+            throw exception;
         } finally {
             method.releaseConnection();
         }

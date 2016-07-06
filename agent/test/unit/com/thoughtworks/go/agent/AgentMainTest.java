@@ -28,6 +28,25 @@ import static org.junit.Assert.assertThat;
 @RunWith(Theories.class)
 public class AgentMainTest {
 
+    @DataPoint
+    public static UrlChange fromCruiseToGo = new UrlChange("https://foo.bar:8154/cruise", "https://foo.bar:8154/go/");
+    @DataPoint
+    public static UrlChange fromCruiseSlashToGo = new UrlChange("https://foo.bar:8154/cruise/", "https://foo.bar:8154/go/");
+    @DataPoint
+    public static UrlChange noReplacementNeededAsDoesNotEndInCruise = new UrlChange("https://foo.bar:8154/cruise/foo/bar", "https://foo.bar:8154/cruise/foo/bar");
+    @DataPoint
+    public static UrlChange fromSomethingPrefixingCruiseToGo = new UrlChange("https://foo.bar:8154/prefix/cruise", "https://foo.bar:8154/prefix/go/");
+    @DataPoint
+    public static UrlChange noReplacementNeeded = new UrlChange("https://foo.bar:8154/prefix/suffix", "https://foo.bar:8154/prefix/suffix");
+    @DataPoint
+    public static UrlChange noReplacementNeededWithCruiser = new UrlChange("https://foo.bar:8154/prefix/cruiser", "https://foo.bar:8154/prefix/cruiser");
+
+    @Theory
+    public void shouldOnlyReplaceOldUrlWith_Cruise_ContextWith_Go(UrlChange urlChange) {
+        AgentMain.setServiceUrl(urlChange.from);
+        assertThat(new SystemEnvironment().getServiceUrl(), is(urlChange.to));
+    }
+
     static class UrlChange {
         final String from;
         final String to;
@@ -37,24 +56,12 @@ public class AgentMainTest {
             this.to = to;
         }
 
-        @Override public String toString() {
+        @Override
+        public String toString() {
             return "UrlChange{" +
                     "from='" + from + '\'' +
                     ", to='" + to + '\'' +
                     '}';
         }
-    }
-    
-    @DataPoint public static UrlChange fromCruiseToGo = new UrlChange("https://foo.bar:8154/cruise", "https://foo.bar:8154/go/");
-    @DataPoint public static UrlChange fromCruiseSlashToGo = new UrlChange("https://foo.bar:8154/cruise/", "https://foo.bar:8154/go/");
-    @DataPoint public static UrlChange noReplacementNeededAsDoesNotEndInCruise = new UrlChange("https://foo.bar:8154/cruise/foo/bar", "https://foo.bar:8154/cruise/foo/bar");
-    @DataPoint public static UrlChange fromSomethingPrefixingCruiseToGo = new UrlChange("https://foo.bar:8154/prefix/cruise", "https://foo.bar:8154/prefix/go/");
-    @DataPoint public static UrlChange noReplacementNeeded = new UrlChange("https://foo.bar:8154/prefix/suffix", "https://foo.bar:8154/prefix/suffix");
-    @DataPoint public static UrlChange noReplacementNeededWithCruiser = new UrlChange("https://foo.bar:8154/prefix/cruiser", "https://foo.bar:8154/prefix/cruiser");
-
-    @Theory
-    public void shouldOnlyReplaceOldUrlWith_Cruise_ContextWith_Go(UrlChange urlChange) {
-        AgentMain.setServiceUrl(urlChange.from);
-        assertThat(new SystemEnvironment().getServiceUrl(), is(urlChange.to));
     }
 }

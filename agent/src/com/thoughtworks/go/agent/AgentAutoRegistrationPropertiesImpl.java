@@ -58,7 +58,7 @@ public class AgentAutoRegistrationPropertiesImpl implements AgentAutoRegistratio
         return configFile.exists();
     }
 
-    public boolean isElastic() {
+    boolean isElastic() {
         return exist() && !isBlank(agentAutoRegisterElasticPluginId());
     }
 
@@ -138,7 +138,7 @@ public class AgentAutoRegistrationPropertiesImpl implements AgentAutoRegistratio
 
     private class FilteringOutputWriterFactory extends PropertiesConfiguration.DefaultIOFactory {
         class FilteringPropertiesWriter extends PropertiesConfiguration.PropertiesWriter {
-            public FilteringPropertiesWriter(Writer out, char delimiter) {
+            FilteringPropertiesWriter(Writer out, char delimiter) {
                 super(out, delimiter);
             }
 

@@ -26,7 +26,9 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,20 +37,22 @@ import static com.thoughtworks.go.agent.launcher.DownloadableFile.AGENT_PLUGINS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 /* Some parts are mocked, as in AgentPluginsInitializerTest, but the file system (through ZipUtil) is not. */
+@RunWith(MockitoJUnitRunner.class)
 public class AgentPluginsInitializerIntegrationTest {
-    @Mock private PluginManager pluginManager;
-    @Mock private DefaultPluginJarLocationMonitor pluginJarLocationMonitor;
-    @Mock private SystemEnvironment systemEnvironment;
+    @Mock
+    private PluginManager pluginManager;
+    @Mock
+    private DefaultPluginJarLocationMonitor pluginJarLocationMonitor;
+    @Mock
+    private SystemEnvironment systemEnvironment;
 
     private File directoryForUnzippedPlugins;
     private AgentPluginsInitializer agentPluginsInitializer;
 
     @Before
     public void setUp() throws Exception {
-        initMocks(this);
         agentPluginsInitializer = new AgentPluginsInitializer(pluginManager, pluginJarLocationMonitor, new ZipUtil(), systemEnvironment);
 
         directoryForUnzippedPlugins = setupUnzippedPluginsDirectoryStructure();

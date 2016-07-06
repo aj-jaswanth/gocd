@@ -38,11 +38,11 @@ import static org.apache.commons.lang.StringUtils.join;
 public class AgentProcessParentImpl implements AgentProcessParent {
 
     /* 40-50 for launcher error codes*/
-    public static final int EXCEPTION_OCCURRED = -373;
+    private static final Log LOG = LogFactory.getLog(AgentProcessParentImpl.class);
+    private static final int EXCEPTION_OCCURRED = -373;
     static final String AGENT_STARTUP_ARGS = "AGENT_STARTUP_ARGS";
     static final String GO_AGENT_STDERR_LOG = "go-agent-stderr.log";
     static final String GO_AGENT_STDOUT_LOG = "go-agent-stdout.log";
-    private static final Log LOG = LogFactory.getLog(AgentProcessParentImpl.class);
 
     public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> env) {
         int exitValue = 0;

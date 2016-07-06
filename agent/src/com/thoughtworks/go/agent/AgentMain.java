@@ -26,7 +26,6 @@ import java.util.regex.Pattern;
 
 
 public final class AgentMain {
-    private static final String QUOTE = "\"";
 
     private AgentMain() {
     }
