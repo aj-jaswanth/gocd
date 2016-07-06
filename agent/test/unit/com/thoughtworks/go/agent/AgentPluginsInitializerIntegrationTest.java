@@ -18,7 +18,10 @@ package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.ZipBuilder;
+import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;

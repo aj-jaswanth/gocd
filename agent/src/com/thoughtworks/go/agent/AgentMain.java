@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.agent;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.thoughtworks.go.agent.common.util.LoggingHelper;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public final class AgentMain {

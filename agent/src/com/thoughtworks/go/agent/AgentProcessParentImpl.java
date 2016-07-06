@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.agent;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.agent.common.launcher.AgentProcessParent;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.JarUtil;
@@ -29,6 +24,11 @@ import com.thoughtworks.go.agent.launcher.ServerBinaryDownloader;
 import com.thoughtworks.go.util.GoConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.agent.common.util.LoggingHelper.CONSOLE_NDC.STDERR;
 import static com.thoughtworks.go.agent.common.util.LoggingHelper.CONSOLE_NDC.STDOUT;

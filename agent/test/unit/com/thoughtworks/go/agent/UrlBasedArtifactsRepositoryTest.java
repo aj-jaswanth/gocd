@@ -18,7 +18,11 @@ package com.thoughtworks.go.agent;
 import com.thoughtworks.go.buildsession.ArtifactsRepository;
 import com.thoughtworks.go.domain.Property;
 import com.thoughtworks.go.helper.TestStreamConsumer;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.CachedDigestUtils;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.HttpService;
+import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -34,7 +38,12 @@ import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedUploadingFai
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class UrlBasedArtifactsRepositoryTest {
 

@@ -23,7 +23,11 @@ import org.apache.commons.configuration.PropertiesConfigurationLayout;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.Writer;
 import java.util.Properties;
 
 import static org.apache.commons.lang.StringUtils.isBlank;

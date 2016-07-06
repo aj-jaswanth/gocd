@@ -16,17 +16,17 @@
 
 package com.thoughtworks.go.agent;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
 import com.thoughtworks.go.agent.common.util.LoggingHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.NDC;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import static com.thoughtworks.go.agent.common.util.LoggingHelper.CONSOLE_NDC;
 

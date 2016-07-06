@@ -16,12 +16,8 @@
 
 package com.thoughtworks.go.agent.functional;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-
-import com.thoughtworks.go.agent.testhelpers.GoServerRunner;
 import com.thoughtworks.go.agent.testhelpers.FakeGoServer;
+import com.thoughtworks.go.agent.testhelpers.GoServerRunner;
 import com.thoughtworks.go.helper.RandomPort;
 import com.thoughtworks.go.security.AuthSSLProtocolSocketFactory;
 import com.thoughtworks.go.security.AuthSSLX509TrustManagerFactory;
@@ -33,6 +29,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.io.File;
+
+import static org.junit.Assert.assertTrue;
 
 @ContextConfiguration(locations = { })
 public class X509CertificateTest {

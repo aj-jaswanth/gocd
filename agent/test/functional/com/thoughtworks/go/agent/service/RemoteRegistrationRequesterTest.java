@@ -19,7 +19,6 @@ package com.thoughtworks.go.agent.service;
 import com.thoughtworks.go.agent.AgentAutoRegistrationPropertiesImpl;
 import com.thoughtworks.go.config.DefaultAgentRegistry;
 import com.thoughtworks.go.security.Registration;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
